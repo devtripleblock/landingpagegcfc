@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, Building2, CheckCircle2, Landmark, Mail, Menu, Phone, Users, X } from "lucide-react";
+import { ArrowRight, ArrowUp, BarChart3, Building2, CheckCircle2, Landmark, Mail, Menu, Phone, Users, X } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { useEffect, useMemo, useState } from "react";
@@ -739,7 +739,7 @@ export function Testimonials() {
         </div>
       </div>
 
-      {/* Marquee full width */}
+      {/* Marquee full-bleed (giống Partners) */}
       <div
         className="relative overflow-hidden"
         style={{
@@ -748,56 +748,53 @@ export function Testimonials() {
           marginRight: "calc(50% - 50vw)",
         }}
       >
-        {/* thêm px-4 để mép ngoài có padding = 16px */}
         <div className="overflow-hidden rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md shadow-md px-4 md:px-8">
-          <Marquee
-            gradient={false}
-            speed={40}
-            pauseOnHover
-            autoFill
-            className="w-full"
+          <div
+            className="flex py-6 animate-[testimonialsMarquee_30s_linear_infinite] hover:[animation-play-state:paused]"
+            style={{ width: "200%" }}
           >
-            {logos.map((l, idx) => (
-              <a
-                key={idx}
-                href={l.href || "#"}
-                target={l.href ? "_blank" : undefined}
-                rel={l.href ? "noreferrer" : undefined}
-                className="flex min-w-[220px] md:min-w-[240px] items-center justify-center 
-                           rounded-xl bg-white/70 px-6 md:px-8 py-6 shadow-sm backdrop-blur-sm 
-                           transition hover:shadow-md hover:bg-white"
-              >
-                {l.src ? (
-                  <img
-                    src={l.src}
-                    alt={l.label}
-                    loading="lazy"
-                    decoding="async"
-                    className="max-h-16 w-auto object-contain"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
-                      {l.icon === "landmark" ? (
-                        <Landmark className="h-7 w-7" />
-                      ) : (
-                        <Building2 className="h-7 w-7" />
-                      )}
-                    </div>
-                    <span className="text-base font-medium text-brand-navy">
-                      {l.label}
-                    </span>
+            {[...logos, ...logos].map((l, idx) => {
+              const content = l.src ? (
+                <img
+                  src={l.src}
+                  alt={l.label}
+                  loading="lazy"
+                  decoding="async"
+                  className="max-h-16 w-auto object-contain"
+                />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
+                    {l.icon === "landmark" ? <Landmark className="h-7 w-7" /> : <Building2 className="h-7 w-7" />}
                   </div>
-                )}
-              </a>
-            ))}
-          </Marquee>
+                  <span className="text-base font-medium text-brand-navy">{l.label}</span>
+                </div>
+              );
+
+              return (
+                // GAP 32px giữa các card (16px mỗi bên)
+                <div key={idx} className="px-4">
+                  <a
+                    href={l.href || "#"}
+                    target={l.href ? "_blank" : undefined}
+                    rel={l.href ? "noreferrer" : undefined}
+                    className="flex min-w-[240px] items-center justify-center rounded-xl bg-white/70 px-8 py-6 shadow-sm backdrop-blur-sm transition hover:shadow-md hover:bg-white"
+                  >
+                    {content}
+                  </a>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Style thêm gap giữa các card */}
+      {/* Keyframes giống phần Partners nhưng tên riêng */}
       <style>{`
-        .rfm-child { padding: 0 16px; }  /* gap giữa item = 32px (16 + 16) */
+        @keyframes testimonialsMarquee {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
       `}</style>
     </section>
   );
@@ -952,10 +949,34 @@ function Footer() {
 
 export function HotlineFloating() {
   const t = getT();
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 100);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
   return (
     <div className="fixed bottom-6 right-6 z-50 group">
-      <div className="pointer-events-none absolute -top-14 right-0 opacity-0 translate-y-1 transition group-hover:opacity-100 group-hover:translate-y-0" />
       <div className="flex flex-col items-end gap-3">
+        {/* Nút về đầu trang (ẩn khi ở đầu) */}
+        {showTop && (
+          <button
+            aria-label="Về đầu trang"
+            onClick={scrollToTop}
+            className="group/top relative flex h-12 w-12 items-center justify-center rounded-full
+               bg-white text-brand-navy shadow-lg transition hover:bg-brand-orange hover:text-white active:scale-95"
+            title="Về đầu trang"
+          >
+            <ArrowUp className="h-5 w-5" />
+          </button>
+        )}
+
+        {/* Hotline call */}
         <a href="tel:+84888457898" aria-label="Gọi: (+84) 888 457 898" className="group/phone relative flex items-center">
           <span className="pointer-events-none mr-2 rounded-full bg-white/95 px-3 py-2 text-[13px] font-medium text-brand-navy shadow-md opacity-0 translate-x-2 transition group-hover/phone:opacity-100 group-hover/phone:translate-x-0">
             {t.hotline.telLabel}
@@ -965,6 +986,7 @@ export function HotlineFloating() {
           </span>
         </a>
 
+        {/* Hotline email */}
         <a href="mailto:info@vfcons.net" aria-label="Email: info@vfcons.net" className="group/mail relative flex items-center">
           <span className="pointer-events-none mr-2 rounded-full bg-white/95 px-3 py-2 text-[13px] font-medium text-brand-navy shadow-md opacity-0 translate-x-2 transition group-hover/mail:opacity-100 group-hover/mail:translate-x-0">
             {t.hotline.emailLabel}
