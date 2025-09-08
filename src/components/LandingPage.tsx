@@ -5,6 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import Marquee from "react-fast-marquee";
+import emailjs from "emailjs-com";
+
 
 /** ================== I18N (không đổi layout, chỉ map text) ================== */
 type Lang = "vi" | "en";
@@ -14,14 +17,12 @@ const I18N: Record<Lang, any> = {
     nav: {
       about: "Giới thiệu",
       services: "Dịch vụ",
-      capabilities: "Năng lực",
       partners: "Đối tác",
       testimonials: "Khách hàng",
-      cases: "Dự án tiêu biểu",
     },
     ctaShort: "Nhận tư vấn",
     hero: {
-      title: "Tư vấn xây dựng & Tài chính dự án",
+      title: "Tư vấn xây dựng & \nTài chính dự án",
       seeServices: "Xem dịch vụ",
     },
     strip: [
@@ -49,17 +50,8 @@ const I18N: Record<Lang, any> = {
         { t: "Tư vấn xây dựng", d: "Thiết kế, quản lý dự án, giám sát – phối hợp dòng tiền thực thi" },
       ],
     },
-    partners: { heading: "Được tin cậy bởi các ngân hàng, chủ đầu tư & tổ chức tài chính" },
-    testimonials: { heading: "Khách hàng tiêu biểu" },
-    cases: {
-      heading: "Dự án tiêu biểu",
-      sub: "Một vài dự án tiêu biểu gần đây",
-      items: [
-        { t: "Dự án cao ốc A", d: "Tư vấn cấu trúc vốn & chốt tín dụng 1.200 tỷ" },
-        { t: "Khu đô thị B", d: "Mô hình tài chính 3 statements & sensitivity" },
-        { t: "Hạ tầng BOT C", d: "PPP/BOT/EPC+F – thu xếp vốn & quản trị rủi ro" },
-      ],
-    },
+    partners: { heading: "Đối tác" },
+    testimonials: { heading: "Khách hàng" },
     cta: {
       title: "Bắt đầu cùng VFCons",
       desc: "Hãy chia sẻ nhu cầu & tiến độ của bạn. Chúng tôi sẽ liên hệ trong 24h.",
@@ -80,14 +72,12 @@ const I18N: Record<Lang, any> = {
     nav: {
       about: "About",
       services: "Services",
-      capabilities: "Capabilities",
       partners: "Partners",
       testimonials: "Clients",
-      cases: "Featured Projects",
     },
     ctaShort: "Get Consultation",
     hero: {
-      title: "Construction & Project Finance Consulting",
+      title: "Construction & \n Project Finance Consulting",
       seeServices: "View Services",
     },
     strip: [
@@ -115,7 +105,7 @@ const I18N: Record<Lang, any> = {
         { t: "Construction Advisory", d: "Design, PM, supervision – execution cash coordination" },
       ],
     },
-    partners: { heading: "Trusted by banks, developers & financial institutions" },
+    partners: { heading: "Partners" },
     testimonials: { heading: "Selected Clients" },
     cases: {
       heading: "Featured Projects",
@@ -238,14 +228,12 @@ export default function Landing() {
       <Services />
       <Partners />
       <Testimonials />
-      <Cases />
       <CTA />
       <HotlineFloating />
       <Footer />
     </main>
   );
 }
-
 /* ====== HEADER ====== */
 function Header() {
   const t = getT();
@@ -253,49 +241,33 @@ function Header() {
   const [openLang, setOpenLang] = useState(false);
   const curLang = getUrlLang();
 
-  const links = [
-    { href: "#about", label: t.nav.about },
-    { href: "#services", label: t.nav.services },
-    { href: "#capabilities", label: t.nav.capabilities },
-    { href: "#partners", label: t.nav.partners },
-    { href: "#testimonials", label: t.nav.testimonials },
-    { href: "#cases", label: t.nav.cases },
-  ];
+  // chỉ push các mục có label (tránh undefined khi VI bỏ bớt)
+  const links: { href: string; label: string }[] = [];
+  if (t.nav?.about)        links.push({ href: "#about",        label: t.nav.about });
+  if (t.nav?.services)     links.push({ href: "#services",     label: t.nav.services });
+  if (t.nav?.partners)     links.push({ href: "#partners",     label: t.nav.partners });
+  if (t.nav?.testimonials) links.push({ href: "#testimonials", label: t.nav.testimonials });
+  if (t.nav?.cases)        links.push({ href: "#cases",        label: t.nav.cases }); // chỉ có EN mới có
 
-  const ids = useMemo(() => links.map((l) => l.href.replace("#", "")), [links]);
-  const [activeId, setActiveId] = useState<string>(
-    () => window.location.hash.replace("#", "") || ids[0]
-  );
+  const ids = useMemo(() => links.map(l => l.href.replace("#", "")), [links]);
+  const [activeId, setActiveId] = useState<string>(() => window.location.hash.replace("#", "") || ids[0]);
 
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        const visible = entries.filter(e => e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
         if (visible?.target?.id) setActiveId(visible.target.id);
       },
       { rootMargin: "-30% 0px -60% 0px", threshold: [0.2, 0.4, 0.6] }
     );
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) obs.observe(el);
-    });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
     return () => obs.disconnect();
   }, [ids]);
 
-  const onClickNav = (href: string) => {
-    setOpen(false);
-    const id = href.replace("#", "");
-    setActiveId(id);
-  };
+  const onClickNav = (href: string) => { setOpen(false); setActiveId(href.replace("#","")); };
 
-  // click ngoài để đóng dropdown ngôn ngữ
   useEffect(() => {
-    const onDoc = (e: MouseEvent) => {
-      const el = e.target as HTMLElement;
-      if (!el.closest?.("#lang-dd")) setOpenLang(false);
-    };
+    const onDoc = (e: MouseEvent) => { const el = e.target as HTMLElement; if (!el.closest?.("#lang-dd")) setOpenLang(false); };
     document.addEventListener("click", onDoc);
     return () => document.removeEventListener("click", onDoc);
   }, []);
@@ -305,16 +277,8 @@ function Header() {
       <div className="mx-auto flex max-w-6xl items-center px-6 py-4">
         {/* left: logo */}
         <div className="w-40">
-          <a
-            href={import.meta.env.BASE_URL}
-            className="flex items-center gap-3"
-            aria-label="VF Construction - Trang chủ"
-          >
-            <img
-              src={`${import.meta.env.BASE_URL}logos/vf-logo.svg`}
-              alt="VF"
-              className="h-14 w-auto"
-            />
+          <a href={import.meta.env.BASE_URL} className="flex items-center gap-3" aria-label="VF Construction - Trang chủ">
+            <img src={`${import.meta.env.BASE_URL}logos/vf-logo.svg`} alt="VF" className="h-14 w-auto" />
           </a>
         </div>
 
@@ -330,9 +294,7 @@ function Header() {
                     onClick={() => onClickNav(l.href)}
                     className={[
                       "relative transition",
-                      isActive
-                        ? "text-brand-orange"
-                        : "text-brand-navy/80 hover:text-brand-orange",
+                      isActive ? "text-brand-orange" : "text-brand-navy/80 hover:text-brand-orange",
                     ].join(" ")}
                   >
                     {l.label}
@@ -349,62 +311,50 @@ function Header() {
           </ul>
         </nav>
 
-        {/* right: CTA + lang dropdown */}
-<div className="hidden md:flex items-center justify-end gap-3 flex-shrink-0">
-  {/* CTA */}
-  <a
-    href="#cta"
-    onClick={() => setOpen(false)}
-    className="rounded-2xl px-4 py-2 bg-brand-orange text-white shadow-soft hover:bg-brand-red transition"
-  >
-    {t.ctaShort}
-  </a>
+        {/* right: CTA + lang dropdown (CTA trước, dropdown sau) */}
+        <div className="hidden md:flex items-center justify-end gap-3 flex-shrink-0">
+          <a
+            href="#cta"
+            onClick={() => setOpen(false)}
+            className="rounded-2xl px-4 py-2 bg-brand-orange text-white shadow-soft hover:bg-brand-red transition"
+          >
+            {t.ctaShort}
+          </a>
 
-  {/* Language dropdown */}
-  <div id="lang-dd" className="relative">
-    <button
-      type="button"
-      onClick={() => setOpenLang((v) => !v)}
-      className="inline-flex items-center gap-2 rounded-full border border-brand-navy/20 bg-white/80 px-3 py-1.5 text-sm font-semibold text-brand-navy shadow-sm hover:bg-white"
-    >
-      <Flag code={curLang} />
-      <span>{curLang === "vi" ? "Tiếng Việt" : "English"}</span>
-      <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M4 6l4 4 4-4H4z" />
-      </svg>
-    </button>
-    {openLang && (
-      <div className="absolute right-0 z-50 mt-2 w-40 rounded-xl border border-black/10 bg-white p-2 text-[13px] shadow-lg ring-1 ring-black/5">
-        <button
-          onClick={() => setLangInUrl("en")}
-          className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-black/5 ${
-            curLang === "en" ? "bg-black/[0.04] font-semibold" : ""
-          }`}
-        >
-          <Flag code="en" />
-          <span>English</span>
-        </button>
-        <button
-          onClick={() => setLangInUrl("vi")}
-          className={`mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-black/5 ${
-            curLang === "vi" ? "bg-black/[0.04] font-semibold" : ""
-          }`}
-        >
-          <Flag code="vi" />
-          <span>Tiếng Việt</span>
-        </button>
-      </div>
-    )}
-  </div>
-</div>
-
+          <div id="lang-dd" className="relative">
+            <button
+              type="button"
+              onClick={() => setOpenLang(v => !v)}
+              className="inline-flex items-center gap-2 rounded-full border border-brand-navy/20 bg-white/80 px-3 py-1.5 text-sm font-semibold text-brand-navy shadow-sm hover:bg-white"
+            >
+              <Flag code={curLang} />
+              <span>{curLang === "vi" ? "Tiếng Việt" : "English"}</span>
+              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4H4z" /></svg>
+            </button>
+            {openLang && (
+              <div className="absolute right-0 z-50 mt-2 w-40 rounded-xl border border-black/10 bg-white p-2 text-[13px] shadow-lg ring-1 ring-black/5">
+                <button
+                  onClick={() => setLangInUrl("en")}
+                  className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-black/5 ${curLang==="en"?"bg-black/[0.04] font-semibold":""}`}
+                >
+                  <Flag code="en" /><span>English</span>
+                </button>
+                <button
+                  onClick={() => setLangInUrl("vi")}
+                  className={`mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-black/5 ${curLang==="vi"?"bg-black/[0.04] font-semibold":""}`}
+                >
+                  <Flag code="vi" /><span>Tiếng Việt</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Mobile hamburger */}
         <button
           className="inline-flex items-center justify-center rounded-md p-2 md:hidden text-brand-navy"
-          aria-label="Open menu"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          aria-label="Open menu" aria-expanded={open}
+          onClick={() => setOpen(v => !v)}
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -415,10 +365,7 @@ function Header() {
       {/* Mobile sheet */}
       {open && (
         <>
-          <div
-            className="fixed inset-0 z-30 bg-black/40 md:hidden"
-            onClick={() => setOpen(false)}
-          />
+          <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setOpen(false)} />
           <div className="absolute inset-x-0 top-full z-40 origin-top rounded-b-2xl border-b border-t bg-white shadow-xl dark:border-white/10 dark:bg-background md:hidden">
             <nav className="mx-auto max-w-6xl px-6 py-4">
               <ul className="space-y-2 text-sm font-semibold">
@@ -427,12 +374,7 @@ function Header() {
                   return (
                     <li key={l.href}>
                       <a
-                        className={[
-                          "block py-2 transition",
-                          isActive
-                            ? "text-brand-orange"
-                            : "text-brand-navy/90 hover:text-brand-orange",
-                        ].join(" ")}
+                        className={["block py-2 transition", isActive ? "text-brand-orange" : "text-brand-navy/90 hover:text-brand-orange"].join(" ")}
                         href={l.href}
                         onClick={() => onClickNav(l.href)}
                       >
@@ -442,30 +384,23 @@ function Header() {
                   );
                 })}
                 <li className="pt-2 flex items-center justify-between">
-                  {/* Language mobile buttons */}
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setLangInUrl("en")}
                       className="inline-flex items-center gap-1 rounded-lg border border-brand-navy/20 bg-white/80 px-2 py-1 text-xs font-semibold text-brand-navy hover:bg-white"
                     >
-                      <Flag code="en" />
-                      <span>EN</span>
+                      <Flag code="en" /><span>EN</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setLangInUrl("vi")}
                       className="inline-flex items-center gap-1 rounded-lg border border-brand-navy/20 bg-white/80 px-2 py-1 text-xs font-semibold text-brand-navy hover:bg-white"
                     >
-                      <Flag code="vi" />
-                      <span>VI</span>
+                      <Flag code="vi" /><span>VI</span>
                     </button>
                   </div>
-                  <a
-                    href="#cta"
-                    onClick={() => setOpen(false)}
-                    className="rounded-xl px-3 py-2 text-white bg-brand-orange hover:bg-brand-red transition"
-                  >
+                  <a href="#cta" onClick={() => setOpen(false)} className="rounded-xl px-3 py-2 text-white bg-brand-orange hover:bg-brand-red transition">
                     {t.ctaShort}
                   </a>
                 </li>
@@ -477,10 +412,11 @@ function Header() {
     </header>
   );
 }
-
 /* ====== HERO ====== */
 export function Hero() {
   const t = getT();
+  const isEN = getUrlLang() === "en";
+
   return (
     <section className="relative isolate overflow-hidden">
       <Swiper
@@ -497,15 +433,30 @@ export function Hero() {
               className="relative h-[480px] w-full bg-cover bg-center"
               style={{ backgroundImage: `url(${url})` }}
             >
-              {/* Navy overlay gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-brand-navy/90 via-brand-navy/60 to-transparent" />
 
-              {/* Content */}
               <div className="relative z-10 mx-auto flex h-full max-w-6xl items-center px-6 text-white">
-                <div className="max-w-xl">
-                  <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
-                    {t.hero.title}
+                {/* tăng max-width để đủ chỗ hiển thị 1 dòng */}
+                <div className="w-full max-w-5xl">
+                  <h1
+                    className={[
+                      // thu gọn tracking, cho phép 1 dòng ở màn hình lớn
+                      "font-extrabold leading-tight tracking-tight",
+                      "text-4xl sm:text-5xl lg:text-[44px] xl:text-[56px]",
+                      isEN ? "lg:whitespace-nowrap" : "",
+                    ].join(" ")}
+                  >
+                    {/* VI có \n thì render <br/>, EN giữ nguyên (1 dòng) */}
+                    {String(t.hero.title)
+                      .split("\n")
+                      .map((line: string, i: number, arr: string[]) => (
+                        <span key={i}>
+                          {line}
+                          {i < arr.length - 1 && <br />}
+                        </span>
+                      ))}
                   </h1>
+
                   <div className="mt-8 flex gap-3">
                     <a
                       href="#cta"
@@ -529,6 +480,7 @@ export function Hero() {
     </section>
   );
 }
+
 
 /* ====== STRIP ====== */
 export function FeaturesStrip() {
@@ -643,28 +595,32 @@ export function Partners() {
 
   return (
     <section id="partners" className="relative isolate py-20 overflow-hidden bg-[#D0DAE8]">
+      {/* heading trong khung */}
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-extrabold text-brand-navy">
-            {t.partners.heading}
-          </h2>
+          <h2 className="text-3xl font-extrabold text-brand-navy">{t.partners.heading}</h2>
           <div className="mx-auto mt-4 h-1.5 w-[300px] rounded-full bg-brand-orange" />
         </div>
+      </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md shadow-md">
+      {/* Marquee full-bleed */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          width: "100vw",
+          marginLeft: "calc(50% - 50vw)",
+          marginRight: "calc(50% - 50vw)",
+        }}
+      >
+        {/* padding ngang panel để mép ngoài cân (giống Testimonials) */}
+        <div className="overflow-hidden rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md shadow-md px-4 md:px-8">
           <div
-            className="flex gap-8 py-6 hover:[animation-play-state:paused]"
-            style={{ width: "200%", animation: "marquee-reverse 30s linear infinite" }}
+            className="flex py-6 animate-[partnersMarquee_30s_linear_infinite] hover:[animation-play-state:paused]"
+            style={{ width: "200%" }}
           >
-            {logos.concat(logos).map((l, idx) => {
+            {[...logos, ...logos].map((l, idx) => {
               const content = l.src ? (
-                <img
-                  src={l.src}
-                  alt={l.label}
-                  loading="lazy"
-                  decoding="async"
-                  className="max-h-16 w-auto object-contain"
-                />
+                <img src={l.src} alt={l.label} loading="lazy" decoding="async" className="max-h-16 w-auto object-contain" />
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
@@ -675,15 +631,17 @@ export function Partners() {
               );
 
               return (
-                <a
-                  key={idx}
-                  href={l.href || "#"}
-                  target={l.href ? "_blank" : undefined}
-                  rel={l.href ? "noreferrer" : undefined}
-                  className="flex min-w-[240px] items-center justify-center rounded-xl bg-white/70 px-8 py-6 shadow-sm backdrop-blur-sm transition hover:shadow-md hover:bg-white"
-                >
-                  {content}
-                </a>
+                // GAP GIỮA CÁC CARD: 16px mỗi bên (=> 32px giữa hai card), KHÔNG thay đổi theo breakpoint
+                <div key={idx} className="px-4">
+                  <a
+                    href={l.href || "#"}
+                    target={l.href ? "_blank" : undefined}
+                    rel={l.href ? "noreferrer" : undefined}
+                    className="flex min-w-[240px] items-center justify-center rounded-xl bg-white/70 px-8 py-6 shadow-sm backdrop-blur-sm transition hover:shadow-md hover:bg-white"
+                  >
+                    {content}
+                  </a>
+                </div>
               );
             })}
           </div>
@@ -691,14 +649,18 @@ export function Partners() {
       </div>
 
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
+        @keyframes partnersMarquee {
+          0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
       `}</style>
     </section>
   );
 }
+
+
+
+
 
 /* ====== TESTIMONIALS ====== */
 export function Testimonials() {
@@ -716,7 +678,11 @@ export function Testimonials() {
   ];
 
   return (
-    <section id="testimonials" className="relative isolate py-20 overflow-hidden bg-[#D0DAE8]">
+    <section
+      id="testimonials"
+      className="relative isolate py-20 overflow-hidden bg-[#D0DAE8]"
+    >
+      {/* Heading */}
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-extrabold text-brand-navy">
@@ -724,86 +690,68 @@ export function Testimonials() {
           </h2>
           <div className="mx-auto mt-4 h-1.5 w-[140px] rounded-full bg-brand-orange" />
         </div>
+      </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md shadow-md">
-          <div
-            className="flex gap-8 py-6 hover:[animation-play-state:paused]"
-            style={{ width: "200%", animation: "marquee 30s linear infinite" }}
+      {/* Marquee full width */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          width: "100vw",
+          marginLeft: "calc(50% - 50vw)",
+          marginRight: "calc(50% - 50vw)",
+        }}
+      >
+        {/* thêm px-4 để mép ngoài có padding = 16px */}
+        <div className="overflow-hidden rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md shadow-md px-4 md:px-8">
+          <Marquee
+            gradient={false}
+            speed={40}
+            pauseOnHover
+            autoFill
+            className="w-full"
           >
-            {logos.concat(logos).map((l, idx) => {
-              const content = l.src ? (
-                <img
-                  src={l.src}
-                  alt={l.label}
-                  loading="lazy"
-                  decoding="async"
-                  className="max-h-16 w-auto object-contain"
-                />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
-                    {l.icon === "landmark" ? <Landmark className="h-7 w-7" /> : <Building2 className="h-7 w-7" />}
+            {logos.map((l, idx) => (
+              <a
+                key={idx}
+                href={l.href || "#"}
+                target={l.href ? "_blank" : undefined}
+                rel={l.href ? "noreferrer" : undefined}
+                className="flex min-w-[220px] md:min-w-[240px] items-center justify-center 
+                           rounded-xl bg-white/70 px-6 md:px-8 py-6 shadow-sm backdrop-blur-sm 
+                           transition hover:shadow-md hover:bg-white"
+              >
+                {l.src ? (
+                  <img
+                    src={l.src}
+                    alt={l.label}
+                    loading="lazy"
+                    decoding="async"
+                    className="max-h-16 w-auto object-contain"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
+                      {l.icon === "landmark" ? (
+                        <Landmark className="h-7 w-7" />
+                      ) : (
+                        <Building2 className="h-7 w-7" />
+                      )}
+                    </div>
+                    <span className="text-base font-medium text-brand-navy">
+                      {l.label}
+                    </span>
                   </div>
-                  <span className="text-base font-medium text-brand-navy">{l.label}</span>
-                </div>
-              );
-
-              return (
-                <a
-                  key={idx}
-                  href={l.href || "#"}
-                  target={l.href ? "_blank" : undefined}
-                  rel={l.href ? "noreferrer" : undefined}
-                  className="flex min-w-[240px] items-center justify-center rounded-xl bg-white/70 px-8 py-6 shadow-sm backdrop-blur-sm transition hover:shadow-md hover:bg-white"
-                >
-                  {content}
-                </a>
-              );
-            })}
-          </div>
+                )}
+              </a>
+            ))}
+          </Marquee>
         </div>
       </div>
 
+      {/* Style thêm gap giữa các card */}
       <style>{`
-        @keyframes marquee-reverse {
-          0%   { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
+        .rfm-child { padding: 0 16px; }  /* gap giữa item = 32px (16 + 16) */
       `}</style>
-    </section>
-  );
-}
-
-/* ====== CASES ====== */
-function Cases() {
-  const t = getT();
-  const cases = t.cases.items as { t: string; d: string }[];
-
-  return (
-    <section id="cases" className="py-20 bg-[#D0DAE8]">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-extrabold text-brand-navy">
-            {t.cases.heading}
-          </h2>
-          <p className="mt-2 text-brand-navy/70">
-            {t.cases.sub}
-          </p>
-          <div className="mx-auto mt-4 h-1.5 w-32 rounded-full bg-brand-orange" />
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {cases.map((c, i) => (
-            <article
-              key={i}
-              className="rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md p-6 shadow-md shadow-black/10 transition hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              <div className="text-lg font-semibold text-brand-navy">{c.t}</div>
-              <p className="mt-2 text-sm text-brand-navy/80">{c.d}</p>
-            </article>
-          ))}
-        </div>
-      </div>
     </section>
   );
 }
@@ -811,10 +759,33 @@ function Cases() {
 /* ====== CTA ====== */
 function CTA() {
   const t = getT();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+
+    emailjs
+      .sendForm(
+        "service_6xcfaqh",      // Service ID (EmailJS)
+        "template_6l05l6k",    // Template ID
+        form,
+        "aGzgfBV9T26UadDfg"      // Public Key (API Keys)
+      )
+      .then(() => {
+        alert("✅ Gửi thành công! Chúng tôi sẽ liên hệ sớm.");
+        form.reset();
+      })
+      .catch((err) => {
+        alert("❌ Gửi thất bại: " + (err?.text || "Vui lòng thử lại"));
+      });
+  };
+
   return (
     <section id="cta" className="relative isolate overflow-hidden py-20 bg-[#D0DAE8]">
       <div className="mx-auto max-w-6xl px-6 text-brand-navy">
         <div className="grid items-center gap-10 lg:grid-cols-2">
+          
+          {/* ==== BÊN TRÁI: phần chữ giữ nguyên ==== */}
           <div>
             <h3 className="text-3xl font-extrabold text-brand-navy">
               {t.cta.title}
@@ -825,43 +796,57 @@ function CTA() {
             <div className="mt-4 h-1.5 w-32 rounded-full bg-brand-orange" />
           </div>
 
+          {/* ==== BÊN PHẢI: form EmailJS ==== */}
           <form
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleSubmit}
             className="rounded-2xl border border-white/30 bg-white/30 p-6 backdrop-blur-md shadow-md"
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <input
+                name="name"
                 required
                 placeholder={t.cta.form.name}
-                className="rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm text-brand-navy placeholder-brand-navy/50 outline-none"
+                className="rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm 
+                           text-brand-navy placeholder-brand-navy/50 outline-none"
               />
               <input
+                name="email"
+                type="email"
                 required
                 placeholder={t.cta.form.email}
-                type="email"
-                className="rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm text-brand-navy placeholder-brand-navy/50 outline-none"
+                className="rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm 
+                           text-brand-navy placeholder-brand-navy/50 outline-none"
               />
               <input
+                name="company"
                 placeholder={t.cta.form.company}
-                className="sm:col-span-2 rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm text-brand-navy placeholder-brand-navy/50 outline-none"
+                className="sm:col-span-2 rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm 
+                           text-brand-navy placeholder-brand-navy/50 outline-none"
               />
               <textarea
-                placeholder={t.cta.form.need}
+                name="message"
                 rows={3}
-                className="sm:col-span-2 rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm text-brand-navy placeholder-brand-navy/50 outline-none"
+                placeholder={t.cta.form.need}
+                className="sm:col-span-2 rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-sm 
+                           text-brand-navy placeholder-brand-navy/50 outline-none"
               />
             </div>
+
             <button
-              className="mt-6 w-full rounded-2xl bg-brand-orange px-4 py-3 font-semibold text-white shadow-soft hover:bg-brand-red transition"
+              type="submit"
+              className="mt-6 w-full rounded-2xl bg-brand-orange px-4 py-3 font-semibold text-white 
+                         shadow-soft hover:bg-brand-red transition"
             >
               {t.cta.form.submit}
             </button>
           </form>
+
         </div>
       </div>
     </section>
   );
 }
+
 
 /* ====== FOOTER ====== */
 function Footer() {
