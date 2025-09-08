@@ -214,11 +214,11 @@ export default function Landing() {
   }, [lang]);
 
   return (
-    <main className="relative isolate min-h-screen bg-background text-forceground">
+    <main className="relative isolate min-h-screen bg-background text-foreground">
       {/* nền navy xéo góc cho toàn page */}
       <div className="pointer-events-none fixed inset-0 -z-50 bg-[linear-gradient(160deg,rgba(11,46,107,0.85)_0%,rgba(11,46,107,0.75)_60%,transparent_100%)]" />
-      {/* nội dung */}
-      <style>{`html{scroll-behavior:smooth}@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
+      {/* CSS base: var header + smooth scroll */}
+      <style>{`:root{--header-h:72px} html{scroll-behavior:smooth}`}</style>
 
       {/* KHÔNG thay đổi cấu trúc section/JSX */}
       <Header />
@@ -241,13 +241,26 @@ function Header() {
   const [openLang, setOpenLang] = useState(false);
   const curLang = getUrlLang();
 
+  // đo chiều cao header responsive để offset khi scroll
+  const [headerH, setHeaderH] = useState<number>(72);
+  useEffect(() => {
+    const measure = () => {
+      const el = document.querySelector("header");
+      const h = el ? (el as HTMLElement).offsetHeight : 72;
+      setHeaderH(h);
+      document.documentElement.style.setProperty("--header-h", `${h}px`);
+    };
+    measure();
+    window.addEventListener("resize", measure, { passive: true });
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   // chỉ push các mục có label (tránh undefined khi VI bỏ bớt)
   const links: { href: string; label: string }[] = [];
   if (t.nav?.about)        links.push({ href: "#about",        label: t.nav.about });
   if (t.nav?.services)     links.push({ href: "#services",     label: t.nav.services });
   if (t.nav?.partners)     links.push({ href: "#partners",     label: t.nav.partners });
   if (t.nav?.testimonials) links.push({ href: "#testimonials", label: t.nav.testimonials });
-  if (t.nav?.cases)        links.push({ href: "#cases",        label: t.nav.cases }); // chỉ có EN mới có
 
   const ids = useMemo(() => links.map(l => l.href.replace("#", "")), [links]);
   const [activeId, setActiveId] = useState<string>(() => window.location.hash.replace("#", "") || ids[0]);
@@ -256,21 +269,55 @@ function Header() {
     const obs = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter(e => e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-        if (visible?.target?.id) setActiveId(visible.target.id);
+        if (visible?.target?.id) {
+          const id = visible.target.id;
+          setActiveId(id);
+          // cập nhật hash nhưng không đẩy lịch sử
+          history.replaceState(null, "", `#${id}`);
+        }
       },
-      { rootMargin: "-30% 0px -60% 0px", threshold: [0.2, 0.4, 0.6] }
+      // bám vào vùng giữa viewport để nhạy hơn
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0.1, 0.25, 0.5, 0.75] }
     );
     ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
     return () => obs.disconnect();
   }, [ids]);
 
-  const onClickNav = (href: string) => { setOpen(false); setActiveId(href.replace("#","")); };
+  // Click menu: cuộn có offset + đóng mobile + đồng bộ hash
+  const onClickNav = (href: string, e?: React.MouseEvent) => {
+    e?.preventDefault();
+    setOpen(false);
+    const id = href.replace("#", "");
+    setActiveId(id);
+    const el = document.getElementById(id);
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - headerH;
+      window.scrollTo({ top: y, behavior: "smooth" });
+      history.replaceState(null, "", href);
+    }
+  };
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => { const el = e.target as HTMLElement; if (!el.closest?.("#lang-dd")) setOpenLang(false); };
     document.addEventListener("click", onDoc);
     return () => document.removeEventListener("click", onDoc);
   }, []);
+
+  // Nếu user dùng back/forward thay đổi hash → cũng scroll đúng offset
+  useEffect(() => {
+    const onHash = () => {
+      const id = (location.hash || "").slice(1);
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - headerH;
+        window.scrollTo({ top: y });
+        setActiveId(id);
+      }
+    };
+    window.addEventListener("hashchange", onHash, { passive: true });
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [headerH]);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-white/85 backdrop-blur dark:bg-background/70">
@@ -291,7 +338,7 @@ function Header() {
                 <li key={l.href}>
                   <a
                     href={l.href}
-                    onClick={() => onClickNav(l.href)}
+                    onClick={(e) => onClickNav(l.href, e)}
                     className={[
                       "relative transition",
                       isActive ? "text-brand-orange" : "text-brand-navy/80 hover:text-brand-orange",
@@ -376,7 +423,7 @@ function Header() {
                       <a
                         className={["block py-2 transition", isActive ? "text-brand-orange" : "text-brand-navy/90 hover:text-brand-orange"].join(" ")}
                         href={l.href}
-                        onClick={() => onClickNav(l.href)}
+                        onClick={(e) => onClickNav(l.href, e)}
                       >
                         {l.label}
                       </a>
@@ -520,7 +567,7 @@ export function FeaturesStrip() {
 function AboutSplit() {
   const t = getT();
   return (
-    <section id="about" className="relative text-white">
+    <section id="about" className="relative text-white scroll-mt-[var(--header-h)]">
       <div className="absolute inset-0">
         <img src={IMAGES.about} alt="About VFCons" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/20" />
@@ -551,7 +598,7 @@ function Services() {
   const services = t.services.items as { t: string; d: string }[];
 
   return (
-    <section id="services" className="relative isolate py-20 overflow-hidden bg-[#D0DAE8]">
+    <section id="services" className="relative isolate py-20 overflow-hidden bg-[#D0DAE8] scroll-mt-[var(--header-h)]">
       <div className="relative mx-auto max-w-6xl px-6">
         <div className="mb-10 text-center">
           <h2 className="text-3xl font-extrabold text-brand-navy">
@@ -594,7 +641,7 @@ export function Partners() {
   ];
 
   return (
-    <section id="partners" className="relative isolate py-20 overflow-hidden bg-[#D0DAE8]">
+    <section id="partners" className="relative isolate py-20 overflow-hidden bg-[#D0DAE8] scroll-mt-[var(--header-h)]">
       {/* heading trong khung */}
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-12 text-center">
@@ -680,7 +727,7 @@ export function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="relative isolate py-20 overflow-hidden bg-[#D0DAE8]"
+      className="relative isolate py-20 overflow-hidden bg-[#D0DAE8] scroll-mt-[var(--header-h)]"
     >
       {/* Heading */}
       <div className="mx-auto max-w-6xl px-6">
@@ -781,7 +828,7 @@ function CTA() {
   };
 
   return (
-    <section id="cta" className="relative isolate overflow-hidden py-20 bg-[#D0DAE8]">
+    <section id="cta" className="relative isolate overflow-hidden py-20 bg-[#D0DAE8] scroll-mt-[var(--header-h)]">
       <div className="mx-auto max-w-6xl px-6 text-brand-navy">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           

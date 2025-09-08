@@ -50,4 +50,5 @@
   .card {
     @apply bg-white rounded-2xl shadow-soft p-6;
   }
+  @layer base { html{ scroll-behavior:smooth } }
 }
