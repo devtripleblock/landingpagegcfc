@@ -1,14 +1,17 @@
-/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --brand-navy:#0B2E6B;
+    --brand-red:#E10600;
+    --brand-orange:#F36C21;
+
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --border: 214.3 31.8% 91.4%;
-/* 72px ≈ chiều cao header */
+
     scroll-padding-top: 72px;
   }
 
@@ -17,17 +20,34 @@
     --foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
   }
-  @keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
+
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+  @apply text-foreground;
+  background: linear-gradient(160deg, #0B2E6B 0%, #0B2E6B 60%, transparent 100%);
+  background-color: #0B2E6B;
+}
+}
+@layer components {
+  .btn-primary {
+    @apply bg-brand-navy text-white rounded-2xl px-5 py-3 font-semibold shadow-soft 
+           hover:bg-brand-orange hover:shadow-lg transition;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-red text-white rounded-2xl px-5 py-3 font-semibold shadow-soft 
+           hover:bg-brand-orange transition;
+  }
+
+  .btn-outline {
+    @apply border-2 border-brand-navy text-brand-navy rounded-2xl px-5 py-3 font-semibold
+           hover:bg-brand-orange hover:text-white transition;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-soft p-6;
   }
 }
-
-
