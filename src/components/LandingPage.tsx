@@ -84,14 +84,14 @@ const I18N: Record<Lang, any> = {
     { t: "Efficiency", d: "Optimize cash flow & costs" },
   ],
   about: {
-    badge: "About VF Construction",
-    title: "Vietnam–France International Construction Consulting JSC",
+    badge: "About us",
+    title: "VIET PHAP INTERNATIONAL CONSTRUCTION DESIGN CONSULTANT JOINT STOCK COMPANY",
     desc:
-      "Founded in 2007, VFCons has been partnering with investors, contractors, and stakeholders in capital raising, financial modeling, and risk management...",
+      "Established in 2007, VFCons has accompanied with investors, contractors, and partners in funding capital, building financial model, and controlling business risks...",
     bullets: [
-      "• Mission: Connecting capital – Elevating projects.",
-      "• Vision: Vietnam’s leading construction & finance consultancy.",
-      "• Multi-disciplinary team of experts: finance, legal, project management.",
+      "• Mission: Facilitating capital connections – Elevating construction projects.",
+      "• Vision: To be one of the leaders in financial and construction consultancy in Vietnam.",
+      "• Multidisciplinary team of Experts: Finance, legal, and project management.",
     ],
   },
   services: {
@@ -872,6 +872,26 @@ function Footer() {
           </div>
 
         </div>
+           {/* menu full width dưới cùng */}
+<ul className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-base sm:text-lg font-semibold text-white/80">
+  {[
+    { href: "#about", label: "About VF Construction" },
+    { href: "#services", label: "Services" },
+    { href: "#partners", label: "Partners" },
+    { href: "#testimonials", label: "Clients" },
+    { href: "#cta", label: "Contact" },
+  ].map((l) => (
+    <li key={l.href} className="relative">
+      <a href={l.href} className="hover:text-white transition">
+        {l.label}
+        <span className="block h-[2px] w-0 bg-white/70 rounded-full transition-all duration-300"></span>
+      </a>
+      <style>{`
+        li:hover span { width: 100%; }
+      `}</style>
+    </li>
+  ))}
+</ul>
 
         <div className="mt-10 h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         <p className="mt-5 text-center text-white/70">
