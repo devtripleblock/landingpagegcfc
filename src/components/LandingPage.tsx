@@ -107,7 +107,7 @@ const I18N: Record<Lang, any> = {
   cta: {
     title: "Go with VFCons",
     desc: "Share your needs & schedule. We will contact you within 24h.",
-    form: { name: "Full name", email: "Email", company: "Company", need: "Consulting needs", submit: "Submit" },
+    form: { name: "Full name", email: "Email", company: "Company", need: "Requirements", submit: "Submit" },
   },
   footer: {
     intro: "Viet Phap International Construction Design Consultant Joint Stock Company",
@@ -876,7 +876,7 @@ function Footer() {
         <nav aria-label="Footer navigation" className="mt-5">
           <ul className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-base sm:text-lg font-semibold text-white/80">
             {[
-              { href: "#about", label: "About VF Construction" },
+              { href: "#about", label: "About Us" },
               { href: "#services", label: "Services" },
               { href: "#partners", label: "Partners" },
               { href: "#testimonials", label: "Clients" },
