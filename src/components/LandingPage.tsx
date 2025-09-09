@@ -21,7 +21,7 @@ const I18N: Record<Lang, any> = {
     },
     ctaShort: "Nhận tư vấn",
     hero: {
-      title: "Tư vấn xây dựng & \nTài chính dự án",
+      title: "Tư vấn xây dựng & \n Tài chính dự án",
       seeServices: "Xem dịch vụ",
     },
     strip: [
@@ -73,19 +73,19 @@ const I18N: Record<Lang, any> = {
     partners: "Partners",
     testimonials: "Clients",
   },
-  ctaShort: "Get Consultation",
+  ctaShort: "Contact Us",
   hero: {
-    title: "Construction & \nProject Finance Consulting",
-    seeServices: "View Services",
+    title: " Project Finance & \n Construction Advisory",
+    seeServices: "See more",
   },
   strip: [
     { t: "Transparency", d: "Clear processes & reporting" },
-    { t: "Industry Expertise", d: "Construction & finance" },
-    { t: "Efficiency", d: "Optimize cash flow & costs" },
+    { t: "Industry Expert", d: "Finance  & Construction" },
+    { t: "Efficiency", d: "Optimize costs  & cash flow" },
   ],
   about: {
     badge: "About us",
-    title: "VIET PHAP INTERNATIONAL CONSTRUCTION DESIGN CONSULTANT JOINT STOCK COMPANY",
+    title: "Viet Phap International Construction Design Consultant Joint Stock Company",
     desc:
       "Established in 2007, VFCons has accompanied with investors, contractors, and partners in funding capital, building financial model, and controlling business risks...",
     bullets: [
@@ -97,7 +97,7 @@ const I18N: Record<Lang, any> = {
   services: {
     heading: "Services",
     items: [
-      { t: "Finance", d: "Credit arrangement, project bonds, budget control, ..." },
+      { t: "Finance", d: "Facilitating capital, bonds, controlling budget,..." },
       { t: "Legal & Contracts", d: "Guarantees, insurance – financial terms, ..." },
       { t: "Construction Advisory", d: "Design, project management, supervision, ..." },
     ],
@@ -105,12 +105,12 @@ const I18N: Record<Lang, any> = {
   partners: { heading: "Partners" },
   testimonials: { heading: "Clients" },
   cta: {
-    title: "Start with VFCons",
-    desc: "Share your needs & schedule. We will get back to you within 24h.",
+    title: "Go with VFCons",
+    desc: "Share your needs & schedule. We will contact you within 24h.",
     form: { name: "Full name", email: "Email", company: "Company", need: "Consulting needs", submit: "Submit" },
   },
   footer: {
-    intro: "Vietnam–France International Construction Consulting JSC.",
+    intro: "Viet Phap International Construction Design Consultant Joint Stock Company",
     contactTitle: "Contact",
     address: "D4 That Son, Ward 15, District 10, Ho Chi Minh City, Vietnam",
     navTitle: "Navigation",
@@ -853,51 +853,53 @@ function CTA() {
 function Footer() {
   const t = getT();
   return (
-    <footer className="py-12 bg-brand-navy text-white text-xl">
+    <footer className="py-12 bg-brand-navy text-white">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="grid gap-20 md:grid-cols-2">
+        {/* Top info */}
+        <div className="grid gap-20 md:grid-cols-2 text-xl">
           <div>
             <div className="text-2xl font-extrabold">VF Construction</div>
-            <p className="mt-3 text-white/80">
-              {t.footer.intro}
-            </p>
+            <p className="mt-3 text-white/80">{t.footer.intro}</p>
           </div>
 
           <div>
             <div className="text-2xl font-semibold">{t.footer.contactTitle}</div>
-            <p className="mt-3 text-white/80">
-              {t.footer.address}
-            </p>
+            <p className="mt-3 text-white/80">{t.footer.address}</p>
             <p className="text-white/80">info@vfcons.net · (+84) 888 457 898</p>
           </div>
-
         </div>
-           {/* menu full width dưới cùng */}
-<ul className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-base sm:text-lg font-semibold text-white/80">
-  {[
-    { href: "#about", label: "About VF Construction" },
-    { href: "#services", label: "Services" },
-    { href: "#partners", label: "Partners" },
-    { href: "#testimonials", label: "Clients" },
-    { href: "#cta", label: "Contact" },
-  ].map((l) => (
-    <li key={l.href} className="relative">
-      <a href={l.href} className="hover:text-white transition">
-        {l.label}
-        <span className="block h-[2px] w-0 bg-white/70 rounded-full transition-all duration-300"></span>
-      </a>
-      <style>{`
-        li:hover span { width: 100%; }
-      `}</style>
-    </li>
-  ))}
-</ul>
 
-        <div className="mt-10 h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        {/* Divider */}
+        <div className="mt-8 h-px w-full bg-white/15" />
+
+        {/* Footer nav */}
+        <nav aria-label="Footer navigation" className="mt-5">
+          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-base sm:text-lg font-semibold text-white/80">
+            {[
+              { href: "#about", label: "About VF Construction" },
+              { href: "#services", label: "Services" },
+              { href: "#partners", label: "Partners" },
+              { href: "#testimonials", label: "Clients" },
+              { href: "#cta", label: "Contact us" },
+            ].map((l) => (
+              <li key={l.href} className="relative">
+                <a
+                  href={l.href}
+                  className="group inline-block transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
+                >
+                  {l.label}
+                  {/* underline animation via scaleX */}
+                  <span className="block h-[2px] origin-left scale-x-0 bg-white/70 rounded-full transition-transform duration-300 group-hover:scale-x-100 group-focus-visible:scale-x-100" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Bottom divider + copyright */}
+        <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         <p className="mt-5 text-center text-white/70">
-          {I18N.vi.footer.copyright === t.footer.copyright
-            ? t.footer.copyright(new Date().getFullYear())
-            : t.footer.copyright(new Date().getFullYear())}
+          {t.footer.copyright(new Date().getFullYear())}
         </p>
       </div>
     </footer>
