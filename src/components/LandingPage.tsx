@@ -34,20 +34,19 @@ const I18N: Record<Lang, any> = {
       badge: "Về VF Construction",
       title: "Công ty Cổ phần Tư vấn Thiết kế Xây dựng Quốc Tế Việt Pháp",
       desc:
-        'Thành lập năm 2007, VFCons mang sứ mệnh "Kết nối dòng vốn – Nâng tầm công trình". Chúng tôi đồng hành cùng chủ đầu tư, nhà thầu và đối tác trong huy động vốn, mô hình tài chính, quản trị rủi ro...',
+        'Thành lập năm 2007, VFCons đồng hành cùng chủ đầu tư, nhà thầu và đối tác trong huy động vốn, mô hình tài chính, quản trị rủi ro...',
       bullets: [
         "• Sứ mệnh: Kết nối dòng vốn – Nâng tầm công trình.",
-        "• Tầm nhìn: Đơn vị tư vấn tài chính xây dựng hàng đầu Việt Nam.",
+        "• Tầm nhìn: Đơn vị tư vấn xây dựng, tài chính hàng đầu Việt Nam.",
         "• Đội ngũ chuyên gia đa ngành: tài chính, pháp lý, quản lý dự án.",
       ],
     },
     services: {
       heading: "Dịch vụ",
       items: [
-        { t: "Ngân hàng & Quỹ", d: "Sắp xếp tín dụng, quỹ đồng hành, trái phiếu dự án" },
-        { t: "Quản lý dòng tiền", d: "Kiểm soát ngân sách – báo cáo tiến độ chi phí" },
-        { t: "Pháp lý & Hợp đồng", d: "EPC, bảo lãnh, bảo hiểm – điều khoản tài chính" },
-        { t: "Tư vấn xây dựng", d: "Thiết kế, quản lý dự án, giám sát – phối hợp dòng tiền thực thi" },
+        { t: "Tài chính", d: "Sắp xếp tín dụng, trái phiếu dự án, Kiểm soát ngân sách,... " },
+        { t: "Pháp lý & Hợp đồng", d: "Bảo lãnh, bảo hiểm – điều khoản tài chính,..." },
+        { t: "Tư vấn xây dựng", d: "Thiết kế, quản lý dự án, giám sát,... " },
       ],
     },
     partners: { heading: "Đối tác" },
@@ -607,7 +606,7 @@ function Services() {
           <div className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-brand-orange" />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => (
             <article
               key={s.t}
@@ -633,77 +632,72 @@ export function Partners() {
   const logos: LogoItem[] = [
     { label: "Sovico Group", src: `${BASE}logos/sovico.png` },
     { label: "HDBank", src: `${BASE}logos/hdbank.png`, href: "https://hdbank.com.vn/" },
+    { label: "Công ty Quản Lý Xây Dựng Đông Dương", src: `${BASE}logos/indochina.png` },
+    { label: "Thiên Phú Gia", src: `${BASE}logos/thienphugialogo.png` },
     { label: "Eximbank", src: `${BASE}logos/eximbank.png` },
     { label: "NAGECCO", src: `${BASE}logos/logo-NAGECCO.png` },
-    { label: "Thiên Phú Gia", src: `${BASE}logos/thienphugialogo.png` },
-    { label: "Hợp Nhất Bách Việt", src: `${BASE}logos/hopnhatbachvietlogo.png` },
-    { label: t.nav.partners, icon: "landmark" },
+    
+    
   ];
 
   return (
-    <section id="partners" className="relative isolate py-20 overflow-hidden bg-[#D0DAE8] scroll-mt-[var(--header-h)]">
-      {/* heading trong khung */}
+    <section
+      id="partners"
+      className="relative isolate py-20 overflow-hidden bg-[#D0DAE8] scroll-mt-[var(--header-h)]"
+    >
+      {/* heading */}
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-extrabold text-brand-navy">{t.partners.heading}</h2>
+          <h2 className="text-3xl font-extrabold text-brand-navy">
+            {t.partners.heading}
+          </h2>
           <div className="mx-auto mt-4 h-1.5 w-[300px] rounded-full bg-brand-orange" />
         </div>
-      </div>
 
-      {/* Marquee full-bleed */}
-      <div
-        className="relative overflow-hidden"
-        style={{
-          width: "100vw",
-          marginLeft: "calc(50% - 50vw)",
-          marginRight: "calc(50% - 50vw)",
-        }}
-      >
-        {/* padding ngang panel để mép ngoài cân (giống Testimonials) */}
-        <div className="overflow-hidden rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md shadow-md px-4 md:px-8">
-          <div
-            className="flex py-6 animate-[partnersMarquee_30s_linear_infinite] hover:[animation-play-state:paused]"
-            style={{ width: "200%" }}
-          >
-            {[...logos, ...logos].map((l, idx) => {
-              const content = l.src ? (
-                <img src={l.src} alt={l.label} loading="lazy" decoding="async" className="max-h-16 w-auto object-contain" />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
-                    {l.icon === "landmark" ? <Landmark className="h-7 w-7" /> : <Building2 className="h-7 w-7" />}
-                  </div>
-                  <span className="text-base font-medium text-brand-navy">{l.label}</span>
+        {/* Grid 2 hàng 3 cột */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          {logos.map((l, idx) => {
+            const content = l.src ? (
+              <img
+                src={l.src}
+                alt={l.label}
+                loading="lazy"
+                decoding="async"
+                className="max-h-16 w-auto object-contain"
+              />
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
+                  {l.icon === "landmark" ? (
+                    <Landmark className="h-7 w-7" />
+                  ) : (
+                    <Building2 className="h-7 w-7" />
+                  )}
                 </div>
-              );
+                <span className="text-base font-medium text-brand-navy">
+                  {l.label}
+                </span>
+              </div>
+            );
 
-              return (
-                // GAP GIỮA CÁC CARD: 16px mỗi bên (=> 32px giữa hai card), KHÔNG thay đổi theo breakpoint
-                <div key={idx} className="px-4">
-                  <a
-                    href={l.href || "#"}
-                    target={l.href ? "_blank" : undefined}
-                    rel={l.href ? "noreferrer" : undefined}
-                    className="flex min-w-[240px] items-center justify-center rounded-xl bg-white/70 px-8 py-6 shadow-sm backdrop-blur-sm transition hover:shadow-md hover:bg-white"
-                  >
-                    {content}
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+            return (
+              <a
+  key={idx}
+  href={l.href || "#"}
+  target={l.href ? "_blank" : undefined}
+  rel={l.href ? "noreferrer" : undefined}
+  className="flex min-h-[120px] items-center justify-center rounded-xl bg-white px-8 py-6 shadow-sm transition hover:shadow-md"
+>
+  {content}
+</a>
+            );
+          })}
         </div>
       </div>
-
-      <style>{`
-        @keyframes partnersMarquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
   );
 }
+
 
 
 
@@ -722,6 +716,7 @@ export function Testimonials() {
     { label: "Vietnam News Agency", src: `${BASE}logos/Vietnam_News_Agency_logo.png` },
     { label: "Trung tâm Pháp y tâm thần khu vực Thành phố Hồ Chí Minh ", src: `${BASE}logos/trungtamphapy.png` },
     { label: "Bệnh viện răng hàm mặt TP.HCM ", src: `${BASE}logos/ranghammat.png` },
+    { label: "Công ty TNHH Cơ điện lạnh Đại Thắng ", src: `${BASE}logos/daithang.png` },
   ];
 
   return (
@@ -737,68 +732,42 @@ export function Testimonials() {
           </h2>
           <div className="mx-auto mt-4 h-1.5 w-[140px] rounded-full bg-brand-orange" />
         </div>
-      </div>
 
-      {/* Marquee full-bleed (giống Partners) */}
-      <div
-        className="relative overflow-hidden"
-        style={{
-          width: "100vw",
-          marginLeft: "calc(50% - 50vw)",
-          marginRight: "calc(50% - 50vw)",
-        }}
-      >
-        <div className="overflow-hidden rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md shadow-md px-4 md:px-8">
-          <div
-            className="flex py-6 animate-[testimonialsMarquee_30s_linear_infinite] hover:[animation-play-state:paused]"
-            style={{ width: "200%" }}
-          >
-            {[...logos, ...logos].map((l, idx) => {
-              const content = l.src ? (
-                <img
-                  src={l.src}
-                  alt={l.label}
-                  loading="lazy"
-                  decoding="async"
-                  className="max-h-16 w-auto object-contain"
-                />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="flex size-14 items-center justify-center rounded-lg bg-brand-navy/10 text-brand-navy ring-1 ring-brand-navy/20">
-                    {l.icon === "landmark" ? <Landmark className="h-7 w-7" /> : <Building2 className="h-7 w-7" />}
-                  </div>
-                  <span className="text-base font-medium text-brand-navy">{l.label}</span>
-                </div>
-              );
+        {/* Grid 3x3 */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          {logos.map((l, idx) => {
+            const content = l.src ? (
+              <img
+                src={l.src}
+                alt={l.label}
+                loading="lazy"
+                decoding="async"
+                className="max-h-16 w-auto object-contain"
+              />
+            ) : (
+              <span className="text-base font-medium text-brand-navy">
+                {l.label}
+              </span>
+            );
 
-              return (
-                // GAP 32px giữa các card (16px mỗi bên)
-                <div key={idx} className="px-4">
-                  <a
-                    href={l.href || "#"}
-                    target={l.href ? "_blank" : undefined}
-                    rel={l.href ? "noreferrer" : undefined}
-                    className="flex min-w-[240px] items-center justify-center rounded-xl bg-white/70 px-8 py-6 shadow-sm backdrop-blur-sm transition hover:shadow-md hover:bg-white"
-                  >
-                    {content}
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+            return (
+              <a
+                key={idx}
+                href={l.href || "#"}
+                target={l.href ? "_blank" : undefined}
+                rel={l.href ? "noreferrer" : undefined}
+                className="flex min-h-[120px] items-center justify-center rounded-xl bg-white px-8 py-6 shadow-sm transition hover:shadow-md"
+              >
+                {content}
+              </a>
+            );
+          })}
         </div>
       </div>
-
-      {/* Keyframes giống phần Partners nhưng tên riêng */}
-      <style>{`
-        @keyframes testimonialsMarquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
   );
 }
+
 
 /* ====== CTA ====== */
 function CTA() {
