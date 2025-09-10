@@ -43,8 +43,8 @@ const I18N: Record<Lang, any> = {
     services: {
       heading: "Dịch vụ",
       items: [
-        { t: "Tài chính", d: "Sắp xếp tín dụng, trái phiếu dự án, Kiểm soát ngân sách,... " },
-        { t: "Pháp lý & Hợp đồng", d: "Bảo lãnh, bảo hiểm – điều khoản tài chính,..." },
+        { t: "Tài chính", d: "Sắp xếp tín dụng, trái phiếu dự án, kiểm soát ngân sách,... " },
+        { t: "Pháp lý & Hợp đồng", d: "Bảo lãnh, bảo hiểm, điều khoản tài chính,..." },
         { t: "Tư vấn xây dựng", d: "Thiết kế, quản lý dự án, giám sát,... " },
       ],
     },
@@ -98,7 +98,7 @@ const I18N: Record<Lang, any> = {
     heading: "Services",
     items: [
       { t: "Finance", d: "Facilitating capital, bonds, controlling budget,..." },
-      { t: "Legal & Contracts", d: "Guarantees, insurance – financial terms, ..." },
+      { t: "Legal & Contracts", d: "Guarantees, insurance, financial terms, ..." },
       { t: "Construction Advisory", d: "Design, project management, supervision, ..." },
     ],
   },
